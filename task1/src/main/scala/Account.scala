@@ -1,6 +1,5 @@
-/**
-  * Created by bramd on 22/10/2017.
-  */
-class Account {
-
+class Account(initialBalance: Double, val uid: Int = Bank getUniqueId) {
+  def withdraw(amount: Double): Unit = ??? // Implement
+  def deposit(amount: Double): Unit = ??? // Implement
+  def getBalanceAmount: Double = ??? // Implement
 }
