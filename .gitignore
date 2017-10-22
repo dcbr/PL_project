@@ -1,0 +1,4 @@
+# Exclude Intellij project files
+**/.idea
+**/project
+**/target
