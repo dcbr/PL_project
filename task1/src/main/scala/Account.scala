@@ -1,3 +1,5 @@
+// Without the syncronized call, the statements won't be executed atomically (Race condition)
+
 import exceptions._
 
 class Account(initialBalance: Double, val uid: Int = Bank getUniqueId) {
