@@ -47,7 +47,7 @@ class Account(val accountId: String, val bankId: String, val initialBalance: Dou
 
   def sendTransactionToBank(t: Transaction): Unit = {
     // Should send a message containing t to the bank of this account
-    ???
+    BankManager.findBank(bankId) ! t
   }
 
   def transferTo(accountNumber: String, amount: Double): Transaction = {
@@ -81,15 +81,20 @@ class Account(val accountId: String, val bankId: String, val initialBalance: Dou
     case IdentifyActor => sender ! this
 
     case TransactionRequestReceipt(to, transactionId, transaction) => {
-      // Process receipt
-      ???
+      transaction.receiptReceived = true
+      if (!transaction.isSuccessful) {
+        deposit(transaction.amount)
+      }
+      transactions.update(transaction.id, transaction)
     }
 
     case BalanceRequest => getBalanceAmount // Should return current balance
 
     case t: Transaction => {
       // Handle incoming transaction
-      ???
+      deposit(t.amount)
+      t.status = TransactionStatus.SUCCES
+      BankManager.findBank(bankId) ! new TransactionRequestReceipt(t.from, t.id, t)
     }
 
     case msg => ???
