@@ -85,7 +85,7 @@ class Account(val accountId: String, val bankId: String, val initialBalance: Dou
       if (!transaction.isSuccessful) {
         deposit(transaction.amount)
       }
-      transactions.update(transaction.id, transaction)
+      transactions += (transaction.id -> transaction)
     }
 
     case BalanceRequest => getBalanceAmount // Should return current balance
@@ -93,7 +93,7 @@ class Account(val accountId: String, val bankId: String, val initialBalance: Dou
     case t: Transaction => {
       // Handle incoming transaction
       deposit(t.amount)
-      t.status = TransactionStatus.SUCCES
+      t.status = TransactionStatus.SUCCESS
       BankManager.findBank(bankId) ! new TransactionRequestReceipt(t.from, t.id, t)
     }
 

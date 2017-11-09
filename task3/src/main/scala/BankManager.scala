@@ -14,8 +14,8 @@ object BankManager {
     banks(name)
   }
 
-  def findBank(bankId: String): Option[ActorRef] = {
-    banks.get(s"bank$bankId")
+  def findBank(bankId: String): ActorRef = {
+    banks(s"bank$bankId")
   }
 
   def createAccount(accountId: String, bankId: String, initialBalance: Double): ActorRef = {
@@ -25,9 +25,9 @@ object BankManager {
     accounts(name)
   }
 
-  def findAccount(bankId: String, accountId: String): Option[ActorRef] = {
+  def findAccount(bankId: String, accountId: String): ActorRef = {
     val name = s"account$bankId$accountId"
-    accounts.get(name)
+    accounts(name)
   }
 
 }
