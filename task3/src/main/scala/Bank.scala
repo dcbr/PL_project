@@ -63,21 +63,21 @@ class Bank(val bankId: String) extends Actor {
     val transactionStatus = t.status
 
     if (isInternal || toBankId == bankId) {
-      val toAccountOption = findAccount(toAccountId)
-      if(toAccountOption != null)
-        toAccountOption ! t
-      else{
-        t.status = TransactionStatus.FAILED
-        findAccount(t.from.substring(4)) ! new TransactionRequestReceipt(t.from, t.id, t)
+      try{
+        findAccount(toAccountId) ! t
+      }catch{
+        case e: Exception =>
+          t.status = TransactionStatus.FAILED
+          findAccount(t.from.substring(4)) ! new TransactionRequestReceipt(t.from, t.id, t)
       }
     }
     else {
-      val toBankOption = findOtherBank(toBankId)
-      if(toBankOption != null)
-        toBankOption ! t
-      else {
-        t.status = TransactionStatus.FAILED
-        findAccount(t.from.substring(4)) ! new TransactionRequestReceipt(t.from, t.id, t)
+      try {
+        findOtherBank(toBankId) ! t
+      }catch {
+        case e: Exception =>
+          t.status = TransactionStatus.FAILED
+          findAccount(t.from.substring(4)) ! new TransactionRequestReceipt(t.from, t.id, t)
       }
     }
   }
