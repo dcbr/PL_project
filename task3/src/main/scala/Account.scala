@@ -34,9 +34,16 @@ class Account(val accountId: String, val bankId: String, val initialBalance: Dou
     true
   }
 
-  def withdraw(amount: Double): Unit = ??? // Like in part 2
-  def deposit(amount: Double): Unit = ??? // Like in part 2
-  def getBalanceAmount: Double = ??? // Like in part 2
+  def withdraw(amount: Double): Unit = balance.synchronized {
+    if (amount < 0) throw new IllegalAmountException("You cannot withdraw a negative amount of money!")
+    if (amount > balance.amount) throw new NoSufficientFundsException("Your account has insufficient funds to withdraw this amount of money.")
+    balance.amount -= amount
+  }
+  def deposit(amount: Double): Unit = balance.synchronized {
+    if (amount < 0) throw new IllegalAmountException("You cannot deposit a negative amount of money!")
+    balance.amount += amount
+  }
+  def getBalanceAmount: Double = balance.amount
 
   def sendTransactionToBank(t: Transaction): Unit = {
     // Should send a message containing t to the bank of this account
@@ -78,7 +85,7 @@ class Account(val accountId: String, val bankId: String, val initialBalance: Dou
       ???
     }
 
-    case BalanceRequest => ??? // Should return current balance
+    case BalanceRequest => getBalanceAmount // Should return current balance
 
     case t: Transaction => {
       // Handle incoming transaction
