@@ -1,4 +1,8 @@
+import java.util.concurrent.LinkedBlockingQueue
+
+import collection.JavaConverters._
 import exceptions._
+
 import scala.collection.mutable
 
 object TransactionStatus extends Enumeration {
@@ -7,20 +11,22 @@ object TransactionStatus extends Enumeration {
 
 class TransactionQueue {
 
+  val queue = new LinkedBlockingQueue[Transaction]()
+
   // Remove and return the first element from the queue
-  def pop: Transaction = ???
+  def pop: Transaction = queue.take
 
   // Return whether the queue is empty
-  def isEmpty: Boolean = ???
+  def isEmpty: Boolean = queue.isEmpty
 
   // Add new element to the back of the queue
-  def push(t: Transaction): Unit = ???
+  def push(t: Transaction): Unit = queue.put(t)
 
   // Return the first element from the queue without removing it
-  def peek: Transaction = ???
+  def peek: Transaction = queue.peek
 
   // Return an iterator to allow you to iterate over the queue
-  def iterator: Iterator[Transaction] = ???
+  def iterator: Iterator[Transaction] = queue.iterator().asScala
 }
 
 class Transaction(val transactionsQueue: TransactionQueue,
@@ -39,17 +45,26 @@ class Transaction(val transactionsQueue: TransactionQueue,
       to deposit amount
     }
 
-    if (from.uid < to.uid) from synchronized {
-      to synchronized {
-        doTransaction
+    try {
+      if (from.uid < to.uid) from synchronized {
+        to synchronized {
+          doTransaction
+        }
+      } else to synchronized {
+        from synchronized {
+          doTransaction
+        }
       }
-    } else to synchronized {
-      from synchronized {
-        doTransaction
-      }
+      status = TransactionStatus.SUCCESS
+      processedTransactions.push(this)
+    }catch{
+      case _: Exception =>
+        status = TransactionStatus.FAILED
+        if(allowedAttemps>1)
+          transactionsQueue.push(new Transaction(transactionsQueue, processedTransactions, from, to, amount, allowedAttemps-1))
+        else
+          processedTransactions.push(this)
     }
-
-    // Extend this method to satisfy new requirements.
 
   }
 }

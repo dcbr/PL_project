@@ -24,12 +24,14 @@ class Account(val accountId: String, val bankId: String, val initialBalance: Dou
 
   def getTransactions: List[Transaction] = {
     // Should return a list of all Transaction-objects stored in transactions
-    ???
+    transactions.values.toList
   }
 
   def allTransactionsCompleted: Boolean = {
     // Should return whether all Transaction-objects in transactions are completed
-    ???
+    for(t <- transactions.values)
+      if(!t.isCompleted) return false
+    true
   }
 
   def withdraw(amount: Double): Unit = ??? // Like in part 2
